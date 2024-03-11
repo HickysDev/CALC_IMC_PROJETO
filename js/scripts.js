@@ -47,14 +47,16 @@ const weightInput = document.querySelector("#weight");
 const calcBtn = document.querySelector("#calc-btn");
 const clearBtn = document.querySelector("#clear-btn");
 
-const imcNumber = document.querySelector("#imc-number span")
-const imcInfo = document.querySelector("#imc-info span")
+const imcNumber = document.querySelector("#imc-number span");
+const imcInfo = document.querySelector("#imc-info span");
 
-const backBtn = document.querySelector("#back-btn")
+const backBtn = document.querySelector("#back-btn");
 
-const calcContainer 
+const calcContainer = document.querySelector("#calc-container");
+const resultContainer = document.querySelector("#result-container");
+
+
 //! Funções
-
 /* Criando a tabela de imc a partir da data */
 function createTable(data) {
   data.forEach((item) => {
@@ -86,25 +88,24 @@ function clearInputs() {
 
 /* Impondo digitos validos */
 function validDigits(text) {
-    return text.replace(/[^0-9,]/g, "")
+  return text.replace(/[^0-9,]/g, "");
 }
 
 /* Calculo de IMC */
 function calcImc(weight, height) {
-    const imc = (weight / (height * height)).toFixed(1);
+  const imc = (weight / (height * height)).toFixed(1);
 
-    return imc; 
+  return imc;
 }
 
+/* Switch para colocar hide e tirar do outro */
 function showOrHideResults() {
-
+  calcContainer.classList.toggle("hide");
+  resultContainer.classList.toggle("hide");
 }
-
 
 //! Inicialização
 createTable(data);
-
-
 
 
 //! Eventos
@@ -116,38 +117,69 @@ clearBtn.addEventListener("click", (e) => {
 
 /* Verificando os digitos validos */
 [heightInput, weightInput].forEach((el) => {
-    el.addEventListener("input", (e) => {
-        const updatedValue = validDigits(e.target.value);
+  el.addEventListener("input", (e) => {
+    const updatedValue = validDigits(e.target.value);
 
-        e.target.value = updatedValue;
-    })
-})
-
+    e.target.value = updatedValue;
+  });
+});
 
 /* Substituindo a virgula para fazer o calculo */
 calcBtn.addEventListener("click", (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    const weight = +weightInput.value.replace(",", ".")
-    const height = +heightInput.value.replace(",", ".")
+  const weight = +weightInput.value.replace(",", ".");
+  const height = +heightInput.value.replace(",", ".");
 
-    if(!weight || !height) return;
+  if (!weight || !height) return;
 
-    const imc = calcImc(weight, height);
+  const imc = calcImc(weight, height);
 
-    let info;
+  let info;
 
-    /* Fazendo a verificação de imc */
-    data.forEach((item) => {
-        if(imc >= item.min && imc <= item.max){
-            info = item.info;
-        }
-    });
+  /* Fazendo a verificação de imc */
+  data.forEach((item) => {
+    if (imc >= item.min && imc <= item.max) {
+      info = item.info;
+    }
+  });
 
-    if(!info) return;
+  if (!info) return;
 
-    imcNumber.innerText = imc;
-    imcInfo.innerText = info;
+  imcNumber.innerText = imc;
+  imcInfo.innerText = info;
 
+  switch (info) {
+    case "Magreza":
+      imcNumber.classList.add("low");
+      imcInfo.classList.add("low");
+      break;
+    case "Normal":
+      imcNumber.classList.add("good");
+      imcInfo.classList.add("good");
+      break;
 
-})
+    case "Sobrepeso":
+      imcNumber.classList.add("medium");
+      imcInfo.classList.add("medium");
+      break;
+
+    case "Obesidade":
+      imcNumber.classList.add("high");
+      imcInfo.classList.add("high");
+      break;
+
+    default:
+      imcNumber.classList.add("high");
+      imcInfo.classList.add("high");
+      break;
+  }
+
+  showOrHideResults();
+});
+
+/* Botão de voltar */
+backBtn.addEventListener("click", () => {
+  clearInputs();
+  showOrHideResults();
+});
